@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/BlakeAnd/ag-eagle-eng-test-be/issues"
   },
-  "homepage": "https://github.com/BlakeAnd/ag-eagle-eng-test-be#readme"
+  "homepage": "https://github.com/BlakeAnd/ag-eagle-eng-test-be#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "dotenv": "^8.2.0"
+  }
 }
