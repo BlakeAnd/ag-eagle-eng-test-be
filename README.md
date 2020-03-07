@@ -8,9 +8,9 @@ To Start This Server:
 
 3) create a .env file
 
-  3b) acquire an API key from random.org, put this in your env file as API_RAND_KEY=yourkeyhere
+  3a) acquire an API key from random.org, put this in your env file as API_RAND_KEY=yourkeyhere
 
-  3c) acquire an API key from openweathermap.org, put this in your env file as API_WEATHER_KEY=yourkeyhere
+  3b) acquire an API key from openweathermap.org, put this in your env file as API_WEATHER_KEY=yourkeyhere
 
 4) run 'node index.js'
 
