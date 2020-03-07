@@ -9,6 +9,6 @@ To Start This Server:
 4) run 'node index.js'
 
 The server should now be up and running.
-Request can be made by downloading and running [this front end] (https://github.com/BlakeAnd/ag-eagle-eng-test-fe)
+Request can be made by downloading and running [this front end](https://github.com/BlakeAnd/ag-eagle-eng-test-fe)
 or,
 by running the Back End server and typing /number_of_points_you_want_returned at the end of the url
