@@ -20,26 +20,40 @@ server.get('/', (req, res) => {
 
 server.get('/weather/:number', (req, res) => {
   let {number} = req.params;
-  number = parseInt(number)
-  console.log("num", number);
-  Axios({
-    method: 'get',
-    url: 'https://api.random.org/json-rpc/1/invoke',
-    data: {
-          jsonrpc: "2.0",
-    method: "generateIntegers",
-    params: {
-        apiKey: process.env.API_RAND_KEY,
-        n: number,
-        min: -90,
-        max: 90,
-        replacement: true
-    },
-    id: 42
-    }
-  }) 
-    .then(response => {
-      let lat_arr = response.data.result.random.data;
+  number = parseInt(number);
+  //this is the call for getting random latitude points
+  let lat_arr = null;
+  let lon_arr = null;
+  let rand_api_promises = [];
+  // let api2_promise= [];
+  getRandomCoords();
+  async function getRandomCoords(){ //this is an async function that makes both of the random number api calls then moves on after the response of whichever one takes longer
+    rand_api_promises.push(
+      Axios({ 
+        method: 'get',
+        url: 'https://api.random.org/json-rpc/1/invoke',
+        data: {
+              jsonrpc: "2.0",
+        method: "generateIntegers",
+        params: {
+            apiKey: process.env.API_RAND_KEY,
+            n: number,
+            min: -90,
+            max: 90,
+            replacement: true
+        },
+        id: 42
+        }
+      }) 
+        .then(response => {
+          lat_arr = response.data.result.random.data;
+          
+          })
+          .catch(error => {
+            response.status(500).json("rand1");
+          })
+    );
+    rand_api_promises.push(
       Axios({
         method: 'get',
         url: 'https://api.random.org/json-rpc/1/invoke',
@@ -56,40 +70,42 @@ server.get('/weather/:number', (req, res) => {
         id: 42
         }
       }) 
-        .then(response => {
-          let lon_arr = response.data.result.random.data;
-          let weather_arr = [];
-          let promises = [];
-          getWeatherData();
-          async function getWeatherData(){
-            for(let i = 0; i < number; i++){
-              console.log("i:", i);
-              promises.push(
-              Axios({
-                method: 'get',
-                url: `http://api.openweathermap.org/data/2.5/weather?lat=${lat_arr[i]}&lon=${lon_arr[i]}&appid=${process.env.API_WEATHER_KEY}`
-              })
-                .then(aresponse => {
-                  weather_arr.push(aresponse.data);
-                  })
-                  .catch(error => {
-                    res.status(500).json(`weather: ${error}`);
-                  })
-                );
-            }
-            await Promise.all(promises).then(() => {
-              // console.log("all:", weather_arr);
-              res.status(200).json(weather_arr);
-            });
-          }
-          })
-          .catch(function(error) {
-            response.status(500).json("rand2");
-          })
+      .then(response => {
+          lon_arr = response.data.result.random.data;
+      
       })
       .catch(function(error) {
-        response.status(500).json("rand1");
+            response.status(500).json("rand2");
       })
+    );
+    await Promise.all(rand_api_promises).then(() => { //this awaits the response of whichever rand_api_promise takes longest
+      let weather_arr = [];
+      let promises = [];
+      getWeatherData();
+      async function getWeatherData(){ //this calls the weather data api in parallel with all random lats and lons, then await the responses
+        for(let i = 0; i < number; i++){
+          console.log("i:", i);
+          promises.push(
+          Axios({
+            method: 'get',
+            url: `http://api.openweathermap.org/data/2.5/weather?lat=${lat_arr[i]}&lon=${lon_arr[i]}&appid=${process.env.API_WEATHER_KEY}`
+          })
+            .then(aresponse => {
+              weather_arr.push(aresponse.data); //push every response from the weather api onto an array so it can be sent back in once piece
+              })
+              .catch(error => {
+                res.status(500).json(`weather: ${error}`);
+              })
+            );
+        }
+        await Promise.all(promises).then(() => { //once we have all the api data, we return the array we generated
+          res.status(200).json(weather_arr);
+        });
+      }
+    });
+
+  };
+
   
 });
 
@@ -97,3 +113,9 @@ server.get('/weather/:number', (req, res) => {
 server.listen(5000, () =>
   console.log('Server running on http://localhost:5000')
 );
+
+
+
+
+
+
