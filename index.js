@@ -9,7 +9,7 @@ const server = express(); // creates the server
 server.use(cors());
 
 server.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000", "https://weather-rand.netlify.com/");
   next();
 });
 
@@ -84,7 +84,7 @@ server.get('/weather/:number', (req, res) => {
       getWeatherData();
       async function getWeatherData(){ //this calls the weather data api in parallel with all random lats and lons, then await the responses
         for(let i = 0; i < number; i++){
-          console.log("i:", i);
+          // console.log("i:", i);
           promises.push(
           Axios({
             method: 'get',
